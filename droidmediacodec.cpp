@@ -16,7 +16,11 @@
  * Authored by: Mohammed Hassan <mohammed.hassan@jolla.com>
  */
 
+#if ANDROID_MAJOR >= 8
+#include <media/stagefright/omx/OMX.h>
+#else
 #include <media/stagefright/OMXClient.h>
+#endif
 
 // MediaCodecSource should be used instead of OMXCodec from Android 5
 #if ANDROID_MAJOR >= 5
@@ -43,7 +47,9 @@
 #include <media/stagefright/MediaDefs.h>
 #include <gui/BufferQueue.h>
 #include "droidmediacodec.h"
+#if ANDROID_MAJOR < 8
 #include "allocator.h"
+#endif
 #include "private.h"
 #include "droidmediabuffer.h"
 
@@ -919,6 +925,7 @@ void droid_media_codec_get_output_info(DroidMediaCodec *codec,
   md->findInt32(android::kKeyHeight, &info->height);
   md->findInt32(android::kKeyChannelCount, &info->channels);
   md->findInt32(android::kKeySampleRate, &info->sample_rate);
+  md->findInt32(android::kKeyColorFormat, &info->hal_format);
 
   if (!md->findRect(android::kKeyCropRect, &crop->left, &crop->top, &crop->right, &crop->bottom)) {
     crop->left = crop->top = 0;

@@ -21,7 +21,9 @@
 #include <binder/IServiceManager.h>
 #include <binder/BinderService.h>
 #include <binder/MemoryHeapBase.h>
+#if ANDROID_MAJOR < 8
 #include "allocator.h"
+#endif
 #include "services/services.h"
 
 using namespace android;
@@ -33,6 +35,16 @@ main(int, char**)
     sp<IServiceManager> sm = defaultServiceManager();
 
     MiniSurfaceFlinger::instantiate();
+
+// Android 4 will not allow system services to be run from minimediaservice. So keep them here instead.
+
+#if (ANDROID_MAJOR == 4)
+    FakePermissionController::instantiate();
+#if (ANDROID_MINOR == 4)
+    FakeAppOps::instantiate();
+#endif
+#endif
+
 
     ProcessState::self()->startThreadPool();
     IPCThreadState::self()->joinThreadPool();
